@@ -175,5 +175,114 @@ private class ConnectionFailedListener implements GoogleApiClient.OnConnectionFa
 }
 ```
 
+#### Custom message channel
+Custom канал для передачи сообщений
+Custom message channel
+
+```java
+class MessageChannel implements Cast.MessageReceivedCallback {
+
+    public String getNamespace() {
+        return getString(R.string.namespace);
+    }
+
+    // Принемаем сообщения от принемающего app (TV, monitor, other)
+    // Receive message from the receiver app (TV, monitor, other)
+    @Override
+    public void onMessageReceived(CastDevice castDevice, String s, String s1) {
+        Log.d("Pasha", "onMessageReceived: " + s +" "+s1);
+	}
+}
+```
+
+#### Send Message
+Передаем текстовое сообщение на приемник (TV, monitor, other)
+Send a text message to the receiver (TV, monitor, other)
+```java
+private void sendMessage(String message) {
+	if (apiClient != null && messageChannel != null) {
+		try {
+			Cast.CastApi.sendMessage(apiClient, messageChannel.getNamespace(), message).setResultCallback(
+				new ResultCallback<Status>() {
+					@Override
+					public void onResult(Status result) {
+						if (!result.isSuccess()) {
+							Log.e("Pasha", "Sending message failed");
+						}
+					}
+			});
+		} catch (Exception e) {
+			Log.e("Pasha", "Exception while sending message", e);
+		}
+	} else {
+		Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+	}
+}
+```
+
+#### Tear down
+Разрываем соединение с приемником
+Tear down the connection to the receiver
+```java
+private void teardown(boolean selectDefaultRoute) {
+    if (apiClient != null) {
+        if (applicationStarted) {
+            if (apiClient.isConnected() || apiClient.isConnecting()) {
+                try {
+                    Cast.CastApi.stopApplication(apiClient, sessionId);
+                    if (messageChannel != null) {
+                        Cast.CastApi.removeMessageReceivedCallbacks(apiClient, messageChannel.getNamespace());
+						messageChannel = null;
+
+                        messageEt.setVisibility(View.GONE);
+                        send.setVisibility(View.GONE);
+                    }
+                } catch (IOException e) {
+                    Log.e("Pasha", "Exception while removing channel", e);
+                }
+				
+                apiClient.disconnect();
+            }
+			
+			applicationStarted = false;
+        }
+		 
+        apiClient = null;
+    }
+	
+    if (selectDefaultRoute) {
+        mediaRouter.selectRoute(mediaRouter.getDefaultRoute());
+    }
+	
+    castDevice = null;
+    waitingForReconnect = false;
+    sessionId = null;
+}
+```
+
+#### Lifecicle
+```java
+@Override
+protected void onStart() {
+	// Запускаем обнаружение устройства
+    // Start media router discovery
+	super.onStart();
+    mediaRouter.addCallback(mediaRouteSelector, mediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
+}
+
+@Override
+protected void onStop() {
+    // Прекращаем пойск утройств
+    // End media router discovery
+	mediaRouter.removeCallback(mediaRouterCallback);
+    super.onStop();
+}
+
+@Override
+protected void onDestroy() {
+    teardown(true);
+    super.onDestroy();
+}
+```
 
 
