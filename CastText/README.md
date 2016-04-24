@@ -3,20 +3,24 @@
 Передача текста с мобильного устройства на приемник(TV) используя ChromeCast.<br/>
 Sending text from your mobile device to the receiver (TV) using ChromeCast.<br/>
 
-#### Draw bitmap
-```java
-private Bitmap androidBitmap;
-private Matrix androidMatrix;
+#### Configure
 
-public MyCustomView(Context context) {
-    super(context);
-	androidMatrix = new Matrix();
-	androidBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.android);
-}
+Настраиваем обноружение Cast устройств. <br/>
+Configure Cast device discovery. <br/>
+
+```java
+private MediaRouter        mediaRouter;
+private MediaRouteSelector mediaRouteSelector;
 
 @Override
-protected void onDraw(Canvas canvas) {
-    canvas.drawBitmap(androidBitmap, androidMatrix, null);
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+
+	mediaRouter        = MediaRouter.getInstance(getApplicationContext());
+	mediaRouteSelector = new MediaRouteSelector.Builder().addControlCategory(
+	CastMediaControlIntent.categoryForCast(getResources().getString(R.string.app_id))).build();
+	mediaRouterCallback = new MyMediaRouterCallback();
 }
 ```
 
