@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">CastText</string>
+    <string name="menu_cast">Chromecast</string>
+    <string name="app_id">794B7BBF</string>
+    <string name="namespace">urn:x-cast:com.google.cast.sample.helloworld</string>
+    <string name="instructions">Talk to me</string>
+    <string name="send">Send</string>
+</resources>
