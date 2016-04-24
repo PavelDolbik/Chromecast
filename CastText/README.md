@@ -260,7 +260,7 @@ private void teardown(boolean selectDefaultRoute) {
 }
 ```
 
-#### Lifecicle
+#### Lifecycle
 ```java
 @Override
 protected void onStart() {
