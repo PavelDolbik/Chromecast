@@ -1,7 +1,7 @@
 ## Cast Text
 
-Передача текста с мобильного устройства на приемник(TV) используя ChromeCast
-Sending text from your mobile device to the receiver (TV) using ChromeCast
+Передача текста с мобильного устройства на приемник(TV) используя ChromeCast.<br/>
+Sending text from your mobile device to the receiver (TV) using ChromeCast.<br/>
 
 #### Draw bitmap
 ```java
