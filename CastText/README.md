@@ -4,13 +4,13 @@
 Sending text from your mobile device to the receiver (TV) using ChromeCast.<br/>
 
 #### Configure
-
 Настраиваем обноружение Cast устройств. <br/>
 Configure Cast device discovery. <br/>
 
 ```java
-private MediaRouter        mediaRouter;
-private MediaRouteSelector mediaRouteSelector;
+private MediaRouter          mediaRouter;
+private MediaRouteSelector   mediaRouteSelector;
+private MediaRouter.Callback mediaRouterCallback;
 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
@@ -22,121 +22,39 @@ protected void onCreate(Bundle savedInstanceState) {
 	CastMediaControlIntent.categoryForCast(getResources().getString(R.string.app_id))).build();
 	mediaRouterCallback = new MyMediaRouterCallback();
 }
-```
-
-#### Add GestureDetector
-```java
-GestureDetector detector = new GestureDetector(context, new MyGestureListener());
-
-private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-    @Override
-    public boolean onDown(MotionEvent motionEvent) {
-        return true;
-    }
-}
 
 @Override
-public boolean onTouchEvent(MotionEvent event) {
-    detector.onTouchEvent(event);
+public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu_main, menu);
+    MenuItem mediaRouteMenuItem = menu.findItem(R.id.media_route_menu_item);
+    MediaRouteActionProvider mediaRouteActionProvider =
+            (MediaRouteActionProvider) MenuItemCompat.getActionProvider(mediaRouteMenuItem);
+    // Устанавливаем селектор MediaRouteActionProvider для обнаружения устройств.
+    // Set the MediaRouteActionProvider selector for device discovery.
+    mediaRouteActionProvider.setRouteSelector(mediaRouteSelector);
     return true;
 }
 ```
 
-#### Add moving
+#### MediaRouter.Callback
+Предоставляет методы для выполнения действий, когда устройство подключено или отключено.<br/>
+Provides methods for performing actions when a route is selected or unselected.<br/>
 ```java
-public void onMove(float dx, float dy) {
-    androidMatrix.postTranslate(dx, dy);
-    invalidate();
-}
-
-public void onResetLocation() {
-    androidMatrix.reset();
-    androidMatrix.postTranslate(centerX, centerY);
-    invalidate();
-}
-
-private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+private class MyMediaRouterCallback extends MediaRouter.Callback {
     @Override
-    public boolean onDoubleTap(MotionEvent motionEvent) {
-		onResetLocation();
-		return true;
+	public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo info) {
+        // Получаем выбранное пользователем устройство
+        // Handle the user route selection.
+        castDevice = CastDevice.getFromBundle(info.getExtras());
+        launchReceiver();
     }
 
     @Override
-    public boolean onDown(MotionEvent motionEvent) {
-        return true;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
-		onMove(-distanceX, -distanceY);
-		return true;
+    public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo info) {
+        teardown(false);
+        castDevice = null;
     }
 }
 ```
 
-#### Add animation when fling
-```java
-public void onAnimateMove(float dx, float dy, long duration) {
-    animateMatrix = new Matrix(androidMatrix);
-    interpolator  = new OvershootInterpolator();
-    startTime = System.currentTimeMillis();
-    endTime   = startTime + duration;
-    totalAnimDx = dx;
-    totalAnimDy = dy;
-    post(new Runnable() {
-        @Override
-        public void run() {
-            onAnimateStep();
-        }
-    });
-}
-
-private void onAnimateStep() {
-    long curTime = System.currentTimeMillis();
-    float percentTime = (float) (curTime - startTime) / (float) (endTime - startTime);
-    float percentDistance = interpolator.getInterpolation(percentTime);
-    float curDx = percentDistance * totalAnimDx;
-    float curDy = percentDistance * totalAnimDy;
-    androidMatrix.set(animateMatrix);
-    onMove(curDx, curDy);
-
-    if (percentTime < 1.0f) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                onAnimateStep();
-            }
-        });
-    }
-}
-
-private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-    @Override
-    public boolean onDoubleTap(MotionEvent motionEvent) {
-		onResetLocation();
-		return true;
-    }
-
-    @Override
-    public boolean onDown(MotionEvent motionEvent) {
-        return true;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
-		onMove(-distanceX, -distanceY);
-		return true;
-    }
-
-    @Override
-    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float velocityX, float velocityY) {
-		float distanceTimeFactor = 0.2f;
-        float totalDx = (distanceTimeFactor * velocityX / 2);
-        float totalDy = (distanceTimeFactor * velocityY / 2);
-        onAnimateMove(totalDx, totalDy, (long) (1000 * distanceTimeFactor));
-		return true;
-    }
-}
-```
 
