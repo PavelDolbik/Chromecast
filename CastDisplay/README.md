@@ -11,5 +11,5 @@ For run the application, you need to specify the name of the package - com.pavel
 Or create your own app_id. <br/>
 https://cast.google.com/publish/#/overview<br/>
 
-<img src="/screenshots/screen.jpg" alt="screen" title="screen" width="1000" height="800" />
+<img src="/screenshots/screen.jpg" alt="screen" title="screen" width="1000" height="900" />
 
