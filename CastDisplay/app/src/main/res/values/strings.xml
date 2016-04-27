@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">CastDisplay</string>
+    <string name="menu_cast">Chromecast</string>
+    <string name="app_id">00A9CB1D</string>
+    <string name="presentation_title">CAST REMOTE DISPLAY SAMPLE</string>
+    <string name="change_image">Change image</string>
+
+</resources>
