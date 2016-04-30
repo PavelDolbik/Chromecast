@@ -20,6 +20,24 @@ https://cast.google.com/publish/#/overview<br/>
 5. Опубликуйте приложение нажав Publish. (Publish the app by clicking Publish.)<br/>
 6. Приблизительно через часов 12, ваше приложение будет доступно. (After about 12 hours, your application will be available.)<br/>
 
+#### Preparation
+```java
+compile 'com.android.support:appcompat-v7:23.3.0'
+compile 'com.android.support:mediarouter-v7:23.3.0'
+compile 'com.google.android.gms:play-services:8.4.0'
+
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/media_route_menu_item"
+        android:title="@string/menu_cast"
+        app:showAsAction="always"
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+    />
+</menu>
+```
+
 #### Check Google Play Services
 Утилитный метод, который проверяет, доступен ли Google Play Service.
 A utility method to validate that the appropriate version of the Google Play Services is available on the device.
